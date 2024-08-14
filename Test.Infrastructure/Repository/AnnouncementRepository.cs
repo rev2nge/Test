@@ -1,9 +1,9 @@
 ﻿using Mapster;
 using Microsoft.EntityFrameworkCore;
-using Test.Context;
-using Test.Dto;
-using Test.Models;
-using Test.Repository.Interface;
+using Test.Application.Dto;
+using Test.Application.Repository.Interface;
+using Test.Domain.Models;
+using Test.Infrastrucuture.Context;
 
 namespace Test.Repository
 {
@@ -46,7 +46,7 @@ namespace Test.Repository
         public async Task<AnnouncementPutDto> GetEntity(Guid? id)
         {
             var announcement = await DbSet.FindAsync(id);
-            return announcement?.Adapt<AnnouncementPutDto>();
+            return announcement.Adapt<AnnouncementPutDto>();
         }
 
         public async Task PostEntity(AnnouncementPostDto entity)

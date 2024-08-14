@@ -1,4 +1,4 @@
-﻿namespace Test.Dto
+﻿namespace Test.Application.Dto
 {
     public class EntityBaseDto
     {

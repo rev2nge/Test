@@ -1,6 +1,6 @@
-﻿using Test.Dto;
+﻿using Test.Application.Dto;
 
-namespace Test.Repository.Interface
+namespace Test.Application.Repository.Interface
 {
     public interface IAnnouncementRepository
     {

@@ -1,6 +1,6 @@
-﻿namespace Test.Dto
+﻿namespace Test.Application.Dto
 {
-    public class AnnouncementPostDto : EntityBaseDto
+    public class AnnouncementListDto : EntityBaseDto
     {
         public int? Number { get; set; }
         public Guid? UserId { get; set; }

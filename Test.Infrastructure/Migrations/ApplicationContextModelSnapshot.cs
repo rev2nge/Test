@@ -22,7 +22,7 @@ namespace Test.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Test.Domain.Models.Announcement", b =>
+            modelBuilder.Entity("Test.Models.Announcement", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -56,7 +56,7 @@ namespace Test.Migrations
                     b.ToTable("Announcements");
                 });
 
-            modelBuilder.Entity("Test.Domain.Models.User", b =>
+            modelBuilder.Entity("Test.Models.User", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -73,9 +73,9 @@ namespace Test.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("Test.Domain.Models.Announcement", b =>
+            modelBuilder.Entity("Test.Models.Announcement", b =>
                 {
-                    b.HasOne("Test.Domain.Models.User", "User")
+                    b.HasOne("Test.Models.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId");
 

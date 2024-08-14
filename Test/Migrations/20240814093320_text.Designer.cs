@@ -5,15 +5,15 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Test.Context;
+using Test.Infrastrucuture.Context;
 
 #nullable disable
 
 namespace Test.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    [Migration("20240813141959_Initial")]
-    partial class Initial
+    [Migration("20240814093320_text")]
+    partial class text
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,7 +25,7 @@ namespace Test.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Test.Models.Announcement", b =>
+            modelBuilder.Entity("Test.Domain.Models.Announcement", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -59,7 +59,7 @@ namespace Test.Migrations
                     b.ToTable("Announcements");
                 });
 
-            modelBuilder.Entity("Test.Models.User", b =>
+            modelBuilder.Entity("Test.Domain.Models.User", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -76,9 +76,9 @@ namespace Test.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("Test.Models.Announcement", b =>
+            modelBuilder.Entity("Test.Domain.Models.Announcement", b =>
                 {
-                    b.HasOne("Test.Models.User", "User")
+                    b.HasOne("Test.Domain.Models.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId");
 

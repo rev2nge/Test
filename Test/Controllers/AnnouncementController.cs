@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Test.Dto;
-using Test.Repository.Interface;
+using Test.Application.Dto;
+using Test.Application.Repository.Interface;
 
 namespace Test.Controllers
 {
