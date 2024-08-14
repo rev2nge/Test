@@ -21,20 +21,26 @@ namespace Test.Repository
         public async Task<IEnumerable<AnnouncementPutDto>> GetEntities(string sortBy, string sortOrder)
         {
             var query = DbSet.AsQueryable();
+            var isDescending = string.Equals(sortOrder, "desc", StringComparison.CurrentCultureIgnoreCase);
 
-            query = sortBy.ToLower() switch
-            {
-                "number" => sortOrder.ToLower() == "desc" ? query.OrderByDescending(a => a.Number) : query.OrderBy(a => a.Number),
-                "userid" => sortOrder.ToLower() == "desc" ? query.OrderByDescending(a => a.UserId) : query.OrderBy(a => a.UserId),
-                "text" => sortOrder.ToLower() == "desc" ? query.OrderByDescending(a => a.Text) : query.OrderBy(a => a.Text),
-                "rate" => sortOrder.ToLower() == "desc" ? query.OrderByDescending(a => a.Rate) : query.OrderBy(a => a.Rate),
-                "createdate" => sortOrder.ToLower() == "desc" ? query.OrderByDescending(a => a.CreateDate) : query.OrderBy(a => a.CreateDate),
-                "expirydate" => sortOrder.ToLower() == "desc" ? query.OrderByDescending(a => a.ExpiryDate) : query.OrderBy(a => a.ExpiryDate),
-                _ => query.OrderBy(a => a.CreateDate)
-            };
+            query = ApplySorting(query, sortBy, isDescending);
 
             var announcements = await query.ToListAsync();
             return announcements.Adapt<IEnumerable<AnnouncementPutDto>>();
+        }
+
+        private IQueryable<Announcement> ApplySorting(IQueryable<Announcement> query, string sortBy, bool isDescending)
+        {
+            return sortBy.ToLower() switch
+            {
+                "number" => isDescending ? query.OrderByDescending(a => a.Number) : query.OrderBy(a => a.Number),
+                "userid" => isDescending ? query.OrderByDescending(a => a.UserId) : query.OrderBy(a => a.UserId),
+                "text" => isDescending ? query.OrderByDescending(a => a.Text) : query.OrderBy(a => a.Text),
+                "rate" => isDescending ? query.OrderByDescending(a => a.Rate) : query.OrderBy(a => a.Rate),
+                "createdate" => isDescending ? query.OrderByDescending(a => a.CreateDate) : query.OrderBy(a => a.CreateDate),
+                "expirydate" => isDescending ? query.OrderByDescending(a => a.ExpiryDate) : query.OrderBy(a => a.ExpiryDate),
+                _ => query.OrderBy(a => a.CreateDate) 
+            };
         }
 
         public async Task<AnnouncementPutDto> GetEntity(Guid? id)
