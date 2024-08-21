@@ -1,16 +1,16 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Test.Domain.Models;
 
-namespace Test.Domain.Models
+namespace Test.Application.Dto
 {
-    public class Announcement : EntityBase
+    public class AnnouncementDto : EntityBaseDto
     {
         public int Number { get; set; }
         public Guid? UserId { get; set; }
-        public User? User { get; set; }
+        [MaxLength(1000)]
         public string Text { get; set; }
         public AnnouncementImage? Picture { get; set; }
+        [Range(1, 10)]
         public int? Rate { get; set; }
-        public DateTime CreateDate { get; set; } 
-        public DateTime ExpiryDate { get; set; }
     }
 }

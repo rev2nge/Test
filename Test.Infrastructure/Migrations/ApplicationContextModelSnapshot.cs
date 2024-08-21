@@ -4,11 +4,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Test.Infrastrucuture.Context;
+using Test.Infrastructure.Context;
 
 #nullable disable
 
-namespace Test.Migrations
+namespace Test.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
     partial class ApplicationContextModelSnapshot : ModelSnapshot
@@ -22,7 +22,7 @@ namespace Test.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Test.Models.Announcement", b =>
+            modelBuilder.Entity("Test.Domain.Models.Announcement", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -37,11 +37,8 @@ namespace Test.Migrations
                     b.Property<int?>("Number")
                         .HasColumnType("int");
 
-                    b.Property<string>("Picture")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Rate")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int?>("Rate")
+                        .HasColumnType("int");
 
                     b.Property<string>("Text")
                         .HasColumnType("nvarchar(max)");
@@ -56,7 +53,36 @@ namespace Test.Migrations
                     b.ToTable("Announcements");
                 });
 
-            modelBuilder.Entity("Test.Models.User", b =>
+            modelBuilder.Entity("Test.Domain.Models.AnnouncementImage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("AnnouncementId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ImageFormat")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<byte[]>("OriginalImage")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<byte[]>("ThumbnailImage")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AnnouncementId")
+                        .IsUnique();
+
+                    b.ToTable("AnnouncementImages");
+                });
+
+            modelBuilder.Entity("Test.Domain.Models.User", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -73,13 +99,27 @@ namespace Test.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("Test.Models.Announcement", b =>
+            modelBuilder.Entity("Test.Domain.Models.Announcement", b =>
                 {
-                    b.HasOne("Test.Models.User", "User")
+                    b.HasOne("Test.Domain.Models.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Test.Domain.Models.AnnouncementImage", b =>
+                {
+                    b.HasOne("Test.Domain.Models.Announcement", null)
+                        .WithOne("Picture")
+                        .HasForeignKey("Test.Domain.Models.AnnouncementImage", "AnnouncementId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Test.Domain.Models.Announcement", b =>
+                {
+                    b.Navigation("Picture");
                 });
 #pragma warning restore 612, 618
         }

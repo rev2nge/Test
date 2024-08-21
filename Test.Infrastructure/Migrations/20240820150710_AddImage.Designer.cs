@@ -5,15 +5,15 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Test.Infrastrucuture.Context;
+using Test.Infrastructure.Context;
 
 #nullable disable
 
-namespace Test.Migrations
+namespace Test.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    [Migration("20240814093320_text")]
-    partial class text
+    [Migration("20240820150710_AddImage")]
+    partial class AddImage
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -40,11 +40,8 @@ namespace Test.Migrations
                     b.Property<int?>("Number")
                         .HasColumnType("int");
 
-                    b.Property<string>("Picture")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Rate")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int?>("Rate")
+                        .HasColumnType("int");
 
                     b.Property<string>("Text")
                         .HasColumnType("nvarchar(max)");
@@ -57,6 +54,35 @@ namespace Test.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Announcements");
+                });
+
+            modelBuilder.Entity("Test.Domain.Models.AnnouncementImage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("AnnouncementId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ImageFormat")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<byte[]>("OriginalImage")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<byte[]>("ThumbnailImage")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AnnouncementId")
+                        .IsUnique();
+
+                    b.ToTable("AnnouncementImages");
                 });
 
             modelBuilder.Entity("Test.Domain.Models.User", b =>
@@ -83,6 +109,20 @@ namespace Test.Migrations
                         .HasForeignKey("UserId");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Test.Domain.Models.AnnouncementImage", b =>
+                {
+                    b.HasOne("Test.Domain.Models.Announcement", null)
+                        .WithOne("Picture")
+                        .HasForeignKey("Test.Domain.Models.AnnouncementImage", "AnnouncementId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Test.Domain.Models.Announcement", b =>
+                {
+                    b.Navigation("Picture");
                 });
 #pragma warning restore 612, 618
         }
