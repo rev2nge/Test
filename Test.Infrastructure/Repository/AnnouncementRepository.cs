@@ -27,7 +27,7 @@ namespace Test.Infrastructure.Repository
 
         private DbSet<Announcement> DbSet => _context.Set<Announcement>();
 
-        public async Task<IEnumerable<AnnouncementDto>> GetEntities(string sortBy, string sortOrder)
+        public async Task<IEnumerable<AnnouncementListDto>> GetEntities(string sortBy, string sortOrder)
         {
             var query = DbSet.AsQueryable();
             var isDescending = string.Equals(sortOrder, "desc", StringComparison.CurrentCultureIgnoreCase);
@@ -35,7 +35,7 @@ namespace Test.Infrastructure.Repository
             query = ApplySorting(query, "Date", isDescending);
 
             var announcements = await query.ToListAsync();
-            return announcements.Adapt<IEnumerable<AnnouncementDto>>();
+            return announcements.Adapt<IEnumerable<AnnouncementListDto>>();
         }
 
         private IQueryable<Announcement> ApplySorting(IQueryable<Announcement> query, string sortBy, bool isDescending)
@@ -90,7 +90,7 @@ namespace Test.Infrastructure.Repository
             }
         }
 
-        public async Task<IEnumerable<AnnouncementDto>> SearchEntities(AnnouncementSearchDto searchDto)
+        public async Task<IEnumerable<AnnouncementSearchDto>> SearchEntities(AnnouncementSearchDto searchDto)
         {
             var query = DbSet.AsQueryable();
 
@@ -135,7 +135,7 @@ namespace Test.Infrastructure.Repository
             }
 
             var announcements = await query.ToListAsync();
-            return announcements.Adapt<IEnumerable<AnnouncementDto>>();
+            return announcements.Adapt<IEnumerable<AnnouncementSearchDto>>();
         }
 
         public async Task<int> GetUserAnnouncementsCount(Guid? userId)
@@ -164,16 +164,11 @@ namespace Test.Infrastructure.Repository
             await _context.SaveChangesAsync();
         }
 
-        public async Task<byte[]> GetImageAsync(Guid imageId)
+        public async Task<byte[]> GetImageAsync(Guid imageId, bool isThumbnail = false)
         {
             var image = await _context.AnnouncementImages.FindAsync(imageId);
-            return image?.OriginalImage ?? Array.Empty<byte>();
-        }
-
-        public async Task<byte[]> GetThumbnailImageAsync(Guid imageId)
-        {
-            var image = await _context.AnnouncementImages.FindAsync(imageId);
-            return image?.ThumbnailImage ?? Array.Empty<byte>();
+            return isThumbnail ? image?.ThumbnailImage ?? Array.Empty<byte>() 
+                               : image?.OriginalImage ?? Array.Empty<byte>();
         }
 
         private byte[] ResizeImage(byte[] image, int width, int height)

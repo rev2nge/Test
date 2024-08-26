@@ -95,27 +95,15 @@ namespace Test.Controllers
         }
 
         [HttpGet("GetImage/{imageId:Guid}")]
-        public async Task<IActionResult> GetImage(Guid imageId)
+        public async Task<IActionResult> GetImage(Guid imageId, bool isThumbnail = false)
         {
-            var imageBytes = await _announcementRepository.GetImageAsync(imageId);
+            var imageBytes = await _announcementRepository.GetImageAsync(imageId, isThumbnail);
             if (imageBytes.Length == 0)
             {
-                return NotFound("Изображение не найдено.");
+                return NotFound(isThumbnail ? "Миниатюра не найдена." : "Изображение не найдено.");
             }
 
-            return File(imageBytes, "image/png"); 
-        }
-
-        [HttpGet("GetThumbnail/{imageId:Guid}")]
-        public async Task<IActionResult> GetThumbnail(Guid imageId)
-        {
-            var thumbnailBytes = await _announcementRepository.GetThumbnailImageAsync(imageId);
-            if (thumbnailBytes.Length == 0)
-            {
-                return NotFound("Миниатюра не найдена.");
-            }
-
-            return File(thumbnailBytes, "image/png"); 
+            return File(imageBytes, "image/png");
         }
     }
 }
