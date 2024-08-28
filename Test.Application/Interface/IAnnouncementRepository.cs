@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Test.Application.Dto;
+﻿using Test.Application.Dto;
 
 namespace Test.Application.Repository.Interface
 {
@@ -7,12 +6,9 @@ namespace Test.Application.Repository.Interface
     {
         Task<IEnumerable<AnnouncementListDto>> GetEntities(string sortBy, string sortOrder);
         Task<AnnouncementDto> GetEntity(Guid? id);
-        Task PostEntity(AnnouncementDto entity);
-        Task PutEntity(AnnouncementDto entity);
+        Task PostEntity(AnnouncementPostDto entity);
+        Task PutEntity(AnnouncementPostDto entity);
         Task DeleteEntity(Guid? id);
-        Task<IEnumerable<AnnouncementSearchDto>> SearchEntities(AnnouncementSearchDto searchDto);
-        Task<int> GetUserAnnouncementsCount(Guid? userId);
-        Task SaveImageAsync(Guid announcementId, IFormFile image);
-        Task<byte[]> GetImageAsync(Guid imageId, bool isThumbnail);
+        Task<IEnumerable<AnnouncementDto>> SearchEntities(AnnouncementSearchDto searchDto);
     }
 }

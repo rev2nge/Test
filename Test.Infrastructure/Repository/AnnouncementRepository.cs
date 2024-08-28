@@ -1,9 +1,6 @@
 ﻿using Mapster;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
-using System.Drawing;
 using Test.Application.Configuration;
 using Test.Application.Dto;
 using Test.Application.Repository.Interface;
@@ -15,13 +12,11 @@ namespace Test.Infrastructure.Repository
     public class AnnouncementRepository : IAnnouncementRepository
     {
         private readonly ApplicationContext _context;
-        private readonly IConfiguration _configuration;
         private readonly AnnouncementSettings _announcementSettings;
 
-        public AnnouncementRepository(ApplicationContext context, IConfiguration configuration, IOptions<AnnouncementSettings> announcementSettings)
+        public AnnouncementRepository(ApplicationContext context, IOptions<AnnouncementSettings> announcementSettings)
         {
             _context = context;
-            _configuration = configuration;
             _announcementSettings = announcementSettings.Value;
         }
 
@@ -55,13 +50,20 @@ namespace Test.Infrastructure.Repository
         public async Task<AnnouncementDto> GetEntity(Guid? id)
         {
             var announcement = await DbSet.FindAsync(id);
+
+            if (announcement == null)
+            {
+                throw new KeyNotFoundException("Объявление не найдено.");
+            }
+
             return announcement.Adapt<AnnouncementDto>();
         }
 
-        public async Task PostEntity(AnnouncementDto entity)
+        public async Task PostEntity(AnnouncementPostDto entity)
         {
-            var maxAnnouncements = _announcementSettings.MaxAnnouncementsPerUser;
             var userAnnouncementsCount = await GetUserAnnouncementsCount(entity.UserId);
+            var maxAnnouncements = _announcementSettings.MaxAnnouncementsPerUser;
+            var announcementDeadline = _announcementSettings.AnnouncementDeadline;
 
             if (userAnnouncementsCount >= maxAnnouncements)
             {
@@ -69,11 +71,20 @@ namespace Test.Infrastructure.Repository
             }
 
             var announcement = entity.Adapt<Announcement>();
+
+            announcement.CreateDate = DateTime.Now;
+            announcement.ExpiryDate = DateTime.Now.AddDays(announcementDeadline);
+
             await _context.AddAsync(announcement);
             await _context.SaveChangesAsync();
         }
 
-        public async Task PutEntity(AnnouncementDto entity)
+        private async Task<int> GetUserAnnouncementsCount(Guid? userId)
+        {
+            return await DbSet.CountAsync(a => a.UserId == userId);
+        }
+
+        public async Task PutEntity(AnnouncementPostDto entity)
         {
             var announcement = entity.Adapt<Announcement>();
             _context.Update(announcement);
@@ -90,11 +101,11 @@ namespace Test.Infrastructure.Repository
             }
         }
 
-        public async Task<IEnumerable<AnnouncementSearchDto>> SearchEntities(AnnouncementSearchDto searchDto)
+        public async Task<IEnumerable<AnnouncementDto>> SearchEntities(AnnouncementSearchDto searchDto)
         {
             var query = DbSet.AsQueryable();
 
-            if (searchDto.Number != 0)
+            if (searchDto.Number.HasValue)
             {
                 query = query.Where(a => a.Number == searchDto.Number);
             }
@@ -135,55 +146,7 @@ namespace Test.Infrastructure.Repository
             }
 
             var announcements = await query.ToListAsync();
-            return announcements.Adapt<IEnumerable<AnnouncementSearchDto>>();
-        }
-
-        public async Task<int> GetUserAnnouncementsCount(Guid? userId)
-        {
-            return await DbSet.CountAsync(a => a.UserId == userId);
-        }
-
-        public async Task SaveImageAsync(Guid announcementId, IFormFile image)
-        {
-            using var memoryStream = new MemoryStream();
-            await image.CopyToAsync(memoryStream);
-            var originalImage = memoryStream.ToArray();
-
-            var thumbnailImage = ResizeImage(originalImage, 100, 100); // Изменение размера миниатюры
-
-            var announcementImage = new AnnouncementImage
-            {
-                Id = Guid.NewGuid(),
-                AnnouncementId = announcementId,
-                OriginalImage = originalImage,
-                ThumbnailImage = thumbnailImage,
-                ImageFormat = image.ContentType
-            };
-
-            await _context.AnnouncementImages.AddAsync(announcementImage);
-            await _context.SaveChangesAsync();
-        }
-
-        public async Task<byte[]> GetImageAsync(Guid imageId, bool isThumbnail = false)
-        {
-            var image = await _context.AnnouncementImages.FindAsync(imageId);
-            return isThumbnail ? image?.ThumbnailImage ?? Array.Empty<byte>() 
-                               : image?.OriginalImage ?? Array.Empty<byte>();
-        }
-
-        private byte[] ResizeImage(byte[] image, int width, int height)
-        {
-            using var inputStream = new MemoryStream(image);
-            var original = new Bitmap(inputStream);
-            var thumbnail = new Bitmap(width, height);
-            using (var graphics = Graphics.FromImage(thumbnail))
-            {
-                graphics.DrawImage(original, 0, 0, width, height);
-            }
-
-            using var outputStream = new MemoryStream();
-            thumbnail.Save(outputStream, original.RawFormat);
-            return outputStream.ToArray();
+            return announcements.Adapt<IEnumerable<AnnouncementDto>>();
         }
     }
 }

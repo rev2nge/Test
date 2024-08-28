@@ -1,13 +1,14 @@
-﻿using Test.Domain.Models;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Test.Application.Dto
 {
     public class AnnouncementSearchDto : EntityBaseDto
     {
-        public int Number { get; set; }
+        public int? Number { get; set; }
         public Guid? UserId { get; set; }
-        public string Text { get; set; }
-        public AnnouncementImage? Picture { get; set; }
+        [MaxLength(1000)]
+        public string? Text { get; set; }
+        [Range(1, 10)]
         public int? Rate { get; set; }
         public DateTime? StartCreateDate { get; set; }  
         public DateTime? EndCreateDate { get; set; }

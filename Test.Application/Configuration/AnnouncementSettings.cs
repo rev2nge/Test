@@ -3,5 +3,6 @@
     public class AnnouncementSettings
     {
         public int MaxAnnouncementsPerUser { get; set; }
+        public int AnnouncementDeadline { get; set; }
     }
 }
