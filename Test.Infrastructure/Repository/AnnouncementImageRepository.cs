@@ -29,7 +29,7 @@ namespace Test.Infrastructure.Repository
 
             if (images == null || !images.Any())
             {
-                return Enumerable.Empty<Guid>();
+                throw new KeyNotFoundException("Изображения не найдены.");
             }
 
             return images;
@@ -38,9 +38,10 @@ namespace Test.Infrastructure.Repository
         public async Task<FileContentResult> GetImageAsync(Guid imageId, string webRootPath, bool isThumbnail = false)
         {
             var image = await _context.AnnouncementImages.FindAsync(imageId);
+
             if (image == null)
             {
-                return null;
+                throw new KeyNotFoundException("Не удалось найти изображение.");
             }
 
             var imagePath = Path.Combine(webRootPath, isThumbnail ? image.ThumbnailPath : image.ImagePath);
@@ -52,6 +53,11 @@ namespace Test.Infrastructure.Repository
 
         public async Task<string> SaveImageAsync(Guid announcementId, IFormFile image, string webRootPath)
         {
+            if (image == null || image.Length == 0)
+            {
+                throw new KeyNotFoundException("Не удалось загрузить изображение.");
+            }
+
             var imagePath = Path.Combine(webRootPath, "images");
             Directory.CreateDirectory(imagePath);
 

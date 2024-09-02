@@ -87,6 +87,14 @@ namespace Test.Infrastructure.Repository
         public async Task PutEntity(AnnouncementPostDto entity)
         {
             var announcement = entity.Adapt<Announcement>();
+
+            var existingAnnouncement = await _context.Announcements
+                .AsNoTracking()
+                .FirstOrDefaultAsync(a => a.Id == announcement.Id);
+
+            announcement.CreateDate = existingAnnouncement.CreateDate;
+            announcement.ExpiryDate = existingAnnouncement.ExpiryDate;
+
             _context.Update(announcement);
             await _context.SaveChangesAsync();
         }
